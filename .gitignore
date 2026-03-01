@@ -1,2 +1,12 @@
 /.pytest_cache
 /venv
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
