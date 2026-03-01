@@ -1,5 +1,6 @@
 # tests/unit/test_service.py
 import pytest
+import re
 from dataclasses import dataclass
 
 from src import service
@@ -23,15 +24,15 @@ def test_upsert_profile_happy_path():
 
 def test_upsert_profile_requires_user_id():
     repo = FakeRepo(stored={})
-    with pytest.raises(ValueError, match="user_id"):
+    with pytest.raises(ValueError, match=re.escape("user_id required")):
         service.upsert_profile(repo, "", "alice")
 
 def test_upsert_profile_requires_name():
     repo = FakeRepo(stored={})
-    with pytest.raises(ValueError, match="name required"):
+    with pytest.raises(ValueError, match=re.escape("name required")):
         service.upsert_profile(repo, "123", "")
 
 def test_fetch_profile_requires_user_id():
     repo = FakeRepo(stored={})
-    with pytest.raises(ValueError, match="user_id"):
+    with pytest.raises(ValueError, match=re.escape("user_id required")):
         service.fetch_profile(repo, "")
