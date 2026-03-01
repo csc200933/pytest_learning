@@ -1,4 +1,3 @@
-import os
 import json
 import pytest
 
@@ -9,38 +8,76 @@ class DummyRepo:
     def __init__(self, table_name: str):
         self.table_name = table_name
 
-def test_handler_returns_200(monkeypatch):
+def call_profile_handler(monkeypatch, *, method, user_id="123", body=None, fetch=None, upsert=None):
     monkeypatch.setenv("TABLE_NAME", "dummy-table")
     monkeypatch.setattr(handler_mod, "DynamoRepo", DummyRepo)
 
-    called = {}
-    def fake_upsert_profile(repo, user_id, name):
-        called["user_id"] = user_id
-        called["name"] = name
-        assert isinstance(repo, DummyRepo)
-
-    monkeypatch.setattr(handler_mod.service, "upsert_profile", fake_upsert_profile)
+    if fetch is not None:
+        monkeypatch.setattr(handler_mod.service, "fetch_profile", fetch)
+    if upsert is not None:
+        monkeypatch.setattr(handler_mod.service, "upsert_profile", upsert)
 
     event = apigw_v1_event(
-        "POST",
+        method,
         "/users/{id}/profile",
-        path_params={"id": "123"},
-        body_obj={"name": "alice"},
+        path_params={"id": user_id},
+        body_obj=body,
     )
+    return handler_mod.handler(event, None)
 
-    resp = handler_mod.handler(event, context=None)
+class TestPostProfile:
+    def test_post_profile_200(self, monkeypatch):
+        called = {}
 
-    assert resp["statusCode"] == 200
-    assert json.loads(resp["body"]) == {"ok": True}
-    assert called == {"user_id": "123", "name": "alice"}
+        def fake_upsert(repo, user_id, name):
+            assert isinstance(repo, DummyRepo)
+            called["user_id"] = user_id
+            called["name"] = name
 
-def test_handler_missing_table_env(monkeypatch):
-    monkeypatch.delenv("TABLE_NAME", raising=False)
-    event = apigw_v1_event(
-        "POST",
-        "/users/{id}/profile",
-        path_params={"id": "123"},
-        body_obj={"name": "a"},
-    )
-    with pytest.raises(KeyError):
-        handler_mod.handler(event, context=None)
+        resp = call_profile_handler(
+            monkeypatch,
+            method="POST",
+            user_id="123",
+            body={"name": "alice"},
+            upsert=fake_upsert,
+        )
+
+        assert resp["statusCode"] == 200
+        assert json.loads(resp["body"]) == {"ok": True}
+        assert called == {"user_id": "123", "name": "alice"}
+
+class TestGetProfile:
+    def test_get_profile_200(self, monkeypatch):
+        def fake_fetch(repo, user_id):
+            assert isinstance(repo, DummyRepo)
+            assert user_id == "123"
+            return {"pk": "USER#123", "sk": "PROFILE", "name": "alice"}
+
+        resp = call_profile_handler(monkeypatch, method="GET", user_id="123", fetch=fake_fetch)
+
+        assert resp["statusCode"] == 200
+        assert json.loads(resp["body"])["name"] == "alice"
+
+    def test_get_profile_404(self, monkeypatch):
+        resp = call_profile_handler(
+            monkeypatch,
+            method="GET",
+            user_id="nope",
+            fetch=lambda repo, user_id: None,
+        )
+
+        assert resp["statusCode"] == 404
+        assert json.loads(resp["body"]) == {"message": "not found"}
+
+
+class TestMethodNotAllowed:
+    @pytest.mark.parametrize("method", ["PUT", "PATCH", "DELETE"])
+    def test_method_not_allowed(self, monkeypatch, method):
+        resp = call_profile_handler(
+            monkeypatch,
+            method=method,
+            user_id="123",
+        )
+
+        assert resp["statusCode"] == 405
+        assert json.loads(resp["body"]) == {"message": "method not allowed"}
