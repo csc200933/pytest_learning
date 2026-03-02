@@ -8,7 +8,7 @@ class DummyRepo:
     def __init__(self, table_name: str):
         self.table_name = table_name
 
-def call_profile_handler(monkeypatch, *, method, user_id="123", body=None, fetch=None, upsert=None):
+def call_profile_handler(monkeypatch, *, method, user_id="123", body=None, fetch=None, upsert=None, raw_body=None):
     monkeypatch.setenv("TABLE_NAME", "dummy-table")
     monkeypatch.setattr(handler_mod, "DynamoRepo", DummyRepo)
 
@@ -23,6 +23,10 @@ def call_profile_handler(monkeypatch, *, method, user_id="123", body=None, fetch
         path_params={"id": user_id},
         body_obj=body,
     )
+
+    if raw_body is not None:
+        event["body"] = raw_body
+
     return handler_mod.handler(event, None)
 
 class TestPostProfile:
@@ -45,6 +49,47 @@ class TestPostProfile:
         assert resp["statusCode"] == 200
         assert json.loads(resp["body"]) == {"ok": True}
         assert called == {"user_id": "123", "name": "alice"}
+
+    def test_post_profile_400_invalid_json(self, monkeypatch):
+
+        resp = call_profile_handler(
+            monkeypatch,
+            method="POST",
+            user_id="123",
+            raw_body='{"name": "alice"',
+            upsert=lambda repo, user_id, name: None
+        )
+
+        assert resp["statusCode"] == 400
+        assert json.loads(resp["body"]) == {"message": "bad request"}
+
+    def test_post_profile_400_missing_name(self, monkeypatch):
+
+        resp = call_profile_handler(
+            monkeypatch,
+            method="POST",
+            user_id="123",
+            body={"user_id": "123"},
+            upsert=lambda repo, user_id, name: None
+        )
+
+        assert resp["statusCode"] == 400
+        assert json.loads(resp["body"]) == {"message": "bad request"}
+
+
+    def test_post_profile_400_missing_user_id(self, monkeypatch):
+
+        resp = call_profile_handler(
+            monkeypatch,
+            method="POST",
+            user_id="",
+            body={"name": "alice"},
+            upsert=lambda repo, user_id, name: None
+        )
+
+        assert resp["statusCode"] == 400
+        assert json.loads(resp["body"]) == {"message": "bad request"}
+
 
 class TestGetProfile:
     def test_get_profile_200(self, monkeypatch):

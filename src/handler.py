@@ -17,9 +17,18 @@ def handler(event, context):
     table_name = os.environ["TABLE_NAME"]
     repo = DynamoRepo(table_name=table_name)
 
+    bad = _json(400, {"message": "bad request"})
     if method == "POST":
-        data = json.loads(event.get("body") or "{}")
-        service.upsert_profile(repo, user_id=user_id, name=data.get("name", ""))
+        try:
+            data = json.loads(event.get("body") or "{}")
+        except Exception:
+            return bad
+        
+        name = data.get("name")
+        if not user_id or not name:
+            return bad
+
+        service.upsert_profile(repo, user_id=user_id, name=name)
         return _json(200, {"ok": True})
 
     if method == "GET":
