@@ -53,41 +53,25 @@ class TestPostProfile:
         assert json.loads(resp["body"]) == {"ok": True}
         assert called == {"user_id": "123", "name": "alice"}
 
-    def test_post_profile_400_invalid_json(self, mocker):
+    @pytest.mark.parametrize(
+        "user_id, body, raw_body, case",
+        [
+            ("", {"name": "alice"}, None, "missing user_id"),
+            ("123", {}, None, "missing name"),
+            ("123", {"name": ""}, None, "empty name"),
+            ("123", None, "{invalid json", "invalid json"),
+        ],
+        ids=lambda x: x if isinstance(x, str) else None,  # case名が表示される
+    )
+    def test_post_profile_400_bad_request(self, mocker, user_id, body, raw_body, case):
 
         resp = call_profile_handler(
             mocker,
             method="POST",
-            user_id="123",
-            raw_body='{"name": "alice"',
-            upsert=lambda repo, user_id, name: None
-        )
-
-        assert resp["statusCode"] == 400
-        assert json.loads(resp["body"]) == {"message": "bad request"}
-
-    def test_post_profile_400_missing_name(self, mocker):
-
-        resp = call_profile_handler(
-            mocker,
-            method="POST",
-            user_id="123",
-            body={"user_id": "123"},
-            upsert=lambda repo, user_id, name: None
-        )
-
-        assert resp["statusCode"] == 400
-        assert json.loads(resp["body"]) == {"message": "bad request"}
-
-
-    def test_post_profile_400_missing_user_id(self, mocker):
-
-        resp = call_profile_handler(
-            mocker,
-            method="POST",
-            user_id="",
-            body={"name": "alice"},
-            upsert=lambda repo, user_id, name: None
+            user_id=user_id,
+            body=body,
+            raw_body=raw_body,
+            upsert=lambda *args, **kwargs: None,  # 呼ばれても害はない
         )
 
         assert resp["statusCode"] == 400
