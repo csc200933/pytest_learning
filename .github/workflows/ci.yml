@@ -26,7 +26,7 @@ jobs:
         env:
           AWS_REGION: ap-northeast-1
         run: |
-          python -m pytest -m "not integration" --cov=src --cov-report=term-missing --cov-report=xml --cov-fail-under=85
+          python -m pytest -n 2 -m "not integration" --cov=src --cov-report=term-missing --cov-report=xml --cov-fail-under=85
 
   integration:
     runs-on: ubuntu-latest

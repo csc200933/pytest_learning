@@ -1,0 +1,8 @@
+boto3
+
+[dev]
+pytest
+pytest-cov
+pytest-mock
+moto[boto3]
+pytest-xdist
