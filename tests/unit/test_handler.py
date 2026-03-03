@@ -11,9 +11,6 @@ class DummyRepo:
         self.table_name = table_name
 
 def call_profile_handler(mocker, *, method, user_id="123", body=None, fetch=None, upsert=None, raw_body=None):
-    import os
-    mocker.patch.dict(os.environ, {"TABLE_NAME": "dummy-table"}, clear=False)
-
     mocker.patch.object(handler_mod, "DynamoRepo", DummyRepo)
 
     if fetch is not None:
