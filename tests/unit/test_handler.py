@@ -8,14 +8,16 @@ class DummyRepo:
     def __init__(self, table_name: str):
         self.table_name = table_name
 
-def call_profile_handler(monkeypatch, *, method, user_id="123", body=None, fetch=None, upsert=None, raw_body=None):
-    monkeypatch.setenv("TABLE_NAME", "dummy-table")
-    monkeypatch.setattr(handler_mod, "DynamoRepo", DummyRepo)
+def call_profile_handler(mocker, *, method, user_id="123", body=None, fetch=None, upsert=None, raw_body=None):
+    import os
+    mocker.patch.dict(os.environ, {"TABLE_NAME": "dummy-table"}, clear=False)
+
+    mocker.patch.object(handler_mod, "DynamoRepo", DummyRepo)
 
     if fetch is not None:
-        monkeypatch.setattr(handler_mod.service, "fetch_profile", fetch)
+        mocker.patch.object(handler_mod.service, "fetch_profile", side_effect=fetch)
     if upsert is not None:
-        monkeypatch.setattr(handler_mod.service, "upsert_profile", upsert)
+        mocker.patch.object(handler_mod.service, "upsert_profile", side_effect=upsert)
 
     event = apigw_v1_event(
         method,
@@ -30,7 +32,7 @@ def call_profile_handler(monkeypatch, *, method, user_id="123", body=None, fetch
     return handler_mod.handler(event, None)
 
 class TestPostProfile:
-    def test_post_profile_200(self, monkeypatch):
+    def test_post_profile_200(self, mocker):
         called = {}
 
         def fake_upsert(repo, user_id, name):
@@ -39,7 +41,7 @@ class TestPostProfile:
             called["name"] = name
 
         resp = call_profile_handler(
-            monkeypatch,
+            mocker,
             method="POST",
             user_id="123",
             body={"name": "alice"},
@@ -50,10 +52,10 @@ class TestPostProfile:
         assert json.loads(resp["body"]) == {"ok": True}
         assert called == {"user_id": "123", "name": "alice"}
 
-    def test_post_profile_400_invalid_json(self, monkeypatch):
+    def test_post_profile_400_invalid_json(self, mocker):
 
         resp = call_profile_handler(
-            monkeypatch,
+            mocker,
             method="POST",
             user_id="123",
             raw_body='{"name": "alice"',
@@ -63,10 +65,10 @@ class TestPostProfile:
         assert resp["statusCode"] == 400
         assert json.loads(resp["body"]) == {"message": "bad request"}
 
-    def test_post_profile_400_missing_name(self, monkeypatch):
+    def test_post_profile_400_missing_name(self, mocker):
 
         resp = call_profile_handler(
-            monkeypatch,
+            mocker,
             method="POST",
             user_id="123",
             body={"user_id": "123"},
@@ -77,10 +79,10 @@ class TestPostProfile:
         assert json.loads(resp["body"]) == {"message": "bad request"}
 
 
-    def test_post_profile_400_missing_user_id(self, monkeypatch):
+    def test_post_profile_400_missing_user_id(self, mocker):
 
         resp = call_profile_handler(
-            monkeypatch,
+            mocker,
             method="POST",
             user_id="",
             body={"name": "alice"},
@@ -92,20 +94,20 @@ class TestPostProfile:
 
 
 class TestGetProfile:
-    def test_get_profile_200(self, monkeypatch):
+    def test_get_profile_200(self, mocker):
         def fake_fetch(repo, user_id):
             assert isinstance(repo, DummyRepo)
             assert user_id == "123"
             return {"pk": "USER#123", "sk": "PROFILE", "name": "alice"}
 
-        resp = call_profile_handler(monkeypatch, method="GET", user_id="123", fetch=fake_fetch)
+        resp = call_profile_handler(mocker, method="GET", user_id="123", fetch=fake_fetch)
 
         assert resp["statusCode"] == 200
         assert json.loads(resp["body"])["name"] == "alice"
 
-    def test_get_profile_404(self, monkeypatch):
+    def test_get_profile_404(self, mocker):
         resp = call_profile_handler(
-            monkeypatch,
+            mocker,
             method="GET",
             user_id="nope",
             fetch=lambda repo, user_id: None,
@@ -117,9 +119,9 @@ class TestGetProfile:
 
 class TestMethodNotAllowed:
     @pytest.mark.parametrize("method", ["PUT", "PATCH", "DELETE"])
-    def test_method_not_allowed(self, monkeypatch, method):
+    def test_method_not_allowed(self, mocker, method):
         resp = call_profile_handler(
-            monkeypatch,
+            mocker,
             method=method,
             user_id="123",
         )
