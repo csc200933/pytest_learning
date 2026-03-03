@@ -13,3 +13,8 @@ dev = [
   "pytest-mock",
   "moto[boto3]",
 ]
+
+[tool.pytest.ini_options]
+markers = [
+  "integration: tests with dynamodb (moto/local)",
+]

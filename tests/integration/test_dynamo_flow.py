@@ -1,5 +1,8 @@
+import pytest
 from src.repo_dynamo import DynamoRepo
 from src import service
+
+pytestmark = pytest.mark.integration
 
 def test_upsert_and_fetch_profile_integration(dynamodb_resource, items_table):
     repo = DynamoRepo(items_table.name, dynamodb_resource=dynamodb_resource)
