@@ -3,6 +3,7 @@ import logging
 import pytest
 
 from src import handler as handler_mod
+from tests.factories import profile_body
 from tests.events import apigw_v1_event
 
 class DummyRepo:
@@ -45,7 +46,7 @@ class TestPostProfile:
             mocker,
             method="POST",
             user_id="123",
-            body={"name": "alice"},
+            body=profile_body(name="alice"),
             upsert=fake_upsert,
         )
 
@@ -56,7 +57,7 @@ class TestPostProfile:
     @pytest.mark.parametrize(
         "user_id, body, raw_body, case",
         [
-            ("", {"name": "alice"}, None, "missing user_id"),
+            ("", profile_body(name="alice"), None, "missing user_id"),
             ("123", {}, None, "missing name"),
             ("123", {"name": ""}, None, "empty name"),
             ("123", None, "{invalid json", "invalid json"),
