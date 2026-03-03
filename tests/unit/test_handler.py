@@ -1,4 +1,5 @@
 import json
+import logging
 import pytest
 
 from src import handler as handler_mod
@@ -116,6 +117,26 @@ class TestGetProfile:
         assert resp["statusCode"] == 404
         assert json.loads(resp["body"]) == {"message": "not found"}
 
+    def test_unhandled_exception_logs_and_returns_500(self, mocker, caplog):
+        # env / DynamoRepo差し替えなど：あなたの call_profile_handler に任せる想定
+        def boom(*args, **kwargs):
+            raise RuntimeError("boom")
+
+        caplog.set_level(logging.ERROR)
+
+        resp = call_profile_handler(
+            mocker,
+            method="GET",
+            user_id="123",
+            fetch=boom,   # fetch_profile が落ちる
+        )
+
+        assert resp["statusCode"] == 500
+        assert json.loads(resp["body"]) == {"message": "internal server error"}
+
+        # ログに例外が残っていること（メッセージでも例外文字列でもOK）
+        assert "Unhandled error" in caplog.text
+        assert "boom" in caplog.text
 
 class TestMethodNotAllowed:
     @pytest.mark.parametrize("method", ["PUT", "PATCH", "DELETE"])
@@ -128,3 +149,4 @@ class TestMethodNotAllowed:
 
         assert resp["statusCode"] == 405
         assert json.loads(resp["body"]) == {"message": "method not allowed"}
+
