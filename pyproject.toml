@@ -20,6 +20,11 @@ integration = [
 ]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
 markers = [
   "integration: tests with dynamodb (moto/local)",
+]
+filterwarnings = [
+  "error::DeprecationWarning",
 ]
