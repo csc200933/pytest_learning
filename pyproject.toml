@@ -11,8 +11,12 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest-mock",
-  "moto[boto3]",
   "pytest-xdist",
+]
+
+integration = [
+  "boto3",
+  "moto[boto3]",
 ]
 
 [tool.pytest.ini_options]
