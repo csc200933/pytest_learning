@@ -1,0 +1,3 @@
+[run]
+omit =
+    src/repo_dynamo.py
