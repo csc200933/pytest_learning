@@ -1,6 +1,8 @@
 from typing import Any, Dict, Optional
 
 def pk_user(user_id: str) -> str:
+    if not user_id:
+        raise ValueError("user_id is required.")
     return f"USER#{user_id}"
 
 def sk_profile() -> str:
