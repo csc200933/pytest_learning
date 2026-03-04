@@ -5,3 +5,6 @@ markers = [
   "unit: fast tests without DB",
   "integration: tests with dynamodb (moto/local)",
 ]
+
+[tool.coverage.run]
+omit = ["src/repo_dynamo.py"]
