@@ -73,7 +73,7 @@ class TestPostProfile:
         )
 
         assert resp["statusCode"] == 400
-        assert json.loads(resp["body"]) == {"message": "bad request"}
+        assert json.loads(resp["body"]) == {"error": {"code": "BAD_REQUEST", "message": "bad request"}}
 
 
 class TestGetProfile:
@@ -97,7 +97,7 @@ class TestGetProfile:
         )
 
         assert resp["statusCode"] == 404
-        assert json.loads(resp["body"]) == {"message": "not found"}
+        assert json.loads(resp["body"]) == {"error": {"code": "NOT_FOUND", "message": "not found"}}
 
     def test_unhandled_exception_logs_and_returns_500(self, mocker, caplog):
         # env / DynamoRepo差し替えなど：あなたの call_profile_handler に任せる想定
@@ -114,7 +114,7 @@ class TestGetProfile:
         )
 
         assert resp["statusCode"] == 500
-        assert json.loads(resp["body"]) == {"message": "internal server error"}
+        assert json.loads(resp["body"]) == {"error": {"code": "INTERNAL_ERROR", "message": "internal server error"}}
 
         # ログに例外が残っていること（メッセージでも例外文字列でもOK）
         assert "Unhandled error" in caplog.text
@@ -130,5 +130,5 @@ class TestMethodNotAllowed:
         )
 
         assert resp["statusCode"] == 405
-        assert json.loads(resp["body"]) == {"message": "method not allowed"}
+        assert json.loads(resp["body"]) == {"error": {"code": "METHOD_NOT_ALLOWED", "message": "method not allowed"}}
 

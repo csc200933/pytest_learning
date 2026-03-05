@@ -14,6 +14,10 @@ def _json(status: int, body: dict):
         "body": json.dumps(body),
     }
 
+def _error(status: int, code: str, message: str):
+    return _json(status, {"error": {"code": code, "message": message}})
+
+
 def handler(event, context):
     try:
         method = event.get("httpMethod")
@@ -21,7 +25,8 @@ def handler(event, context):
         table_name = os.environ["TABLE_NAME"]
         repo = DynamoRepo(table_name=table_name)
 
-        bad = _json(400, {"message": "bad request"})
+        bad = _error(400, "BAD_REQUEST", "bad request")
+
         if method == "POST":
             try:
                 data = json.loads(event.get("body") or "{}")
@@ -38,10 +43,10 @@ def handler(event, context):
         if method == "GET":
             item = service.fetch_profile(repo, user_id=user_id)
             if item is None:
-                return _json(404, {"message": "not found"})
+                return _error(404, "NOT_FOUND", "not found")
             return _json(200, item)
 
-        return _json(405, {"message": "method not allowed"})
+        return _error(405, "METHOD_NOT_ALLOWED", "method not allowed")
     except Exception:
         logger.exception("Unhandled error")
-        return _json(500, {"message": "internal server error"})
+        return _error(500, "INTERNAL_ERROR", "internal server error")
