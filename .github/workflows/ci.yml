@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   unit:
@@ -34,8 +35,9 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     needs: unit
-    # main ブランチに push されたときだけ integration を回す
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
 
     steps:
       - uses: actions/checkout@v4
