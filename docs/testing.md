@@ -42,3 +42,19 @@
 * テストは グローバル状態を書き換えない（環境変数・時刻・モジュール変数は fixture/patch で隔離）
 * テストデータは テストごとに固有（idやテーブル名はuuid等で衝突回避）
 * 外部I/Oを含むものは integrationに寄せて本数を絞る（並列対象は基本unit）
+
+## プラグイン
+### pytest-mock
+* 何を解決：unittest.mock を pytest の fixture として扱いやすくする（mocker）
+* よく使う：mocker.patch(...) / mocker.patch.object(...) / mocker.patch.dict(...)
+* 注意：差し替える先は「使っている側のモジュール名」（import先）
+
+### pytest-cov
+* 何を解決：coverage.py とpytestをつないで、テスト実行時にカバレッジを出す
+* よく使う：--cov=src --cov-report=term-missing --cov-report=xml
+* 注意：unitだけ測る/全体測るは運用方針次第（今は unit を指標、integration は別）
+
+### pytest-xdist
+* 何を解決：テストを並列実行して短縮する（-n 2 など）
+* よく使う：-n 2、必要なら --dist=loadscope
+* 注意：共有状態（環境変数/グローバル/固定キー）で壊れやすい → 隔離が正義
