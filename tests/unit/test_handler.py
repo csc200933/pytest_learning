@@ -5,6 +5,7 @@ import pytest
 from src import handler as handler_mod
 from tests.factories import profile_body
 from tests.events import apigw_v1_event
+from tests.factories import error_body, ok_body
 
 class DummyRepo:
     def __init__(self, table_name: str):
@@ -48,7 +49,7 @@ class TestPostProfile:
         )
 
         assert resp["statusCode"] == 200
-        assert json.loads(resp["body"]) == {"ok": True}
+        assert json.loads(resp["body"]) == ok_body()
         assert called == {"user_id": "123", "name": "alice"}
 
     @pytest.mark.parametrize(
@@ -73,7 +74,7 @@ class TestPostProfile:
         )
 
         assert resp["statusCode"] == 400
-        assert json.loads(resp["body"]) == {"error": {"code": "BAD_REQUEST", "message": "bad request"}}
+        assert json.loads(resp["body"]) == error_body("BAD_REQUEST", "bad request")
 
 
 class TestGetProfile:
@@ -97,7 +98,7 @@ class TestGetProfile:
         )
 
         assert resp["statusCode"] == 404
-        assert json.loads(resp["body"]) == {"error": {"code": "NOT_FOUND", "message": "not found"}}
+        assert json.loads(resp["body"]) == error_body("NOT_FOUND", "not found")
 
     def test_unhandled_exception_logs_and_returns_500(self, mocker, caplog):
         # env / DynamoRepo差し替えなど：あなたの call_profile_handler に任せる想定
@@ -114,7 +115,7 @@ class TestGetProfile:
         )
 
         assert resp["statusCode"] == 500
-        assert json.loads(resp["body"]) == {"error": {"code": "INTERNAL_ERROR", "message": "internal server error"}}
+        assert json.loads(resp["body"]) == error_body("INTERNAL_ERROR", "internal server error")
 
         # ログに例外が残っていること（メッセージでも例外文字列でもOK）
         assert "Unhandled error" in caplog.text
@@ -130,5 +131,5 @@ class TestMethodNotAllowed:
         )
 
         assert resp["statusCode"] == 405
-        assert json.loads(resp["body"]) == {"error": {"code": "METHOD_NOT_ALLOWED", "message": "method not allowed"}}
+        assert json.loads(resp["body"]) == error_body("METHOD_NOT_ALLOWED", "method not allowed")
 
