@@ -77,6 +77,39 @@ class TestPostProfile:
         assert json.loads(resp["body"]) == error_body("BAD_REQUEST", "bad request")
 
 
+    @pytest.mark.parametrize(
+        "name",
+        ["", "a" * 51],
+        ids=["empty", "too_long"],
+    )
+    def test_post_profile_400_when_name_invalid_length(self, mocker, name):
+        resp = call_profile_handler(
+            mocker,
+            method="POST",
+            user_id="123",
+            body=profile_body(name=name),
+            upsert=lambda *args, **kwargs: None,
+        )
+        assert resp["statusCode"] == 400
+        assert json.loads(resp["body"]) == error_body("BAD_REQUEST", "bad request")
+
+
+    @pytest.mark.parametrize(
+        "name",
+        ["a", "a" * 50],
+        ids=["min_ok", "max_ok"],
+    )
+    def test_post_profile_200_when_name_valid_length(self, mocker, name):
+        resp = call_profile_handler(
+            mocker,
+            method="POST",
+            user_id="123",
+            body=profile_body(name=name),
+            upsert=lambda *args, **kwargs: None,
+        )
+        assert resp["statusCode"] == 200
+        assert json.loads(resp["body"]) == ok_body()
+
 class TestGetProfile:
     def test_get_profile_200(self, mocker):
         def fake_fetch(repo, user_id):

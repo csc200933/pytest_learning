@@ -37,6 +37,9 @@ def handler(event, context):
             if not user_id or not name:
                 return bad
 
+            if not (1 <= len(name) <= 50):
+                return bad
+
             service.upsert_profile(repo, user_id=user_id, name=name)
             return _json(200, {"ok": True})
 
