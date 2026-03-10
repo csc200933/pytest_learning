@@ -145,3 +145,7 @@ python -m pytest -q -m integration tests/integration
 ### 5. Region mismatch / endpoint mismatch
 - 原因：`AWS_REGION` や `DYNAMODB_ENDPOINT_URL` の設定が期待と違う
 - 対処：PowerShell の環境変数一覧を確認してから pytest を実行する
+
+## 日常実行コマンド
+- moto: `.\scripts\run_integration_moto.ps1`
+- local: `.\scripts\run_integration_local.ps1`
