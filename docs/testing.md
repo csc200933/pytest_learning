@@ -116,3 +116,10 @@ python -m pytest -q -m integration tests/integration
 
 * `ResourceInUseException`
   → テーブル名が重複している可能性がある。テストごとにランダム名を使う
+
+## DynamoDB Local の運用方針
+
+- CI の integration テストは、現時点では **moto** を使う。
+- **DynamoDB Local** は、moto との差分確認や本番寄りの検証をしたいときに **ローカルで手動実行**する。
+- 理由は、CI に Local を入れるとセットアップが重くなり、学習段階では保守コストが上がるため。
+- まずは **ローカルで安定運用**し、必要性が明確になったら CI への導入を検討する。
