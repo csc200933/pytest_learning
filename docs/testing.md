@@ -123,3 +123,25 @@ python -m pytest -q -m integration tests/integration
 - **DynamoDB Local** は、moto との差分確認や本番寄りの検証をしたいときに **ローカルで手動実行**する。
 - 理由は、CI に Local を入れるとセットアップが重くなり、学習段階では保守コストが上がるため。
 - まずは **ローカルで安定運用**し、必要性が明確になったら CI への導入を検討する。
+
+## DynamoDB Local の典型トラブル
+
+### 1. Connection refused
+- 原因：DynamoDB Local が起動していない、またはポート `8000` が使えない
+- 対処：Docker コンテナ起動を確認し、`http://localhost:8000` を使っているか確認する
+
+### 2. Unable to locate credentials
+- 原因：boto3 が認証情報を要求している
+- 対処：PowerShell で `AWS_ACCESS_KEY_ID=dummy` と `AWS_SECRET_ACCESS_KEY=dummy` を設定する
+
+### 3. ResourceInUseException
+- 原因：同じテーブル名で既に作成済み
+- 対処：テストごとにランダムなテーブル名を使う。不要なテーブルは削除する
+
+### 4. ResourceNotFoundException
+- 原因：テーブル作成前にアクセスしている、またはテーブル名が違う
+- 対処：fixture の作成順序と `TableName` を確認する
+
+### 5. Region mismatch / endpoint mismatch
+- 原因：`AWS_REGION` や `DYNAMODB_ENDPOINT_URL` の設定が期待と違う
+- 対処：PowerShell の環境変数一覧を確認してから pytest を実行する
