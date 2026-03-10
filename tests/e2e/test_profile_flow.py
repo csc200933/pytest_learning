@@ -4,17 +4,18 @@ import pytest
 from src import handler as handler_mod
 from tests.events import apigw_v1_event
 from src.repo_dynamo import DynamoRepo
-from tests.factories import profile_body, profile_response, ok_body, error_body
+from tests.factories import profile_body, profile_response, ok_body, error_body, unique_user_id
 
 pytestmark = pytest.mark.e2e
 
 
 def test_profile_flow_post_then_get(patch_handler_repo):
+    user_id = unique_user_id()
     # 1. POST
     post_event = apigw_v1_event(
         "POST",
         "/users/{id}/profile",
-        path_params={"id": "123"},
+        path_params={"id": user_id},
         body_obj=profile_body(name="alice"),
     )
     post_resp = handler_mod.handler(post_event, None)
@@ -26,12 +27,12 @@ def test_profile_flow_post_then_get(patch_handler_repo):
     get_event = apigw_v1_event(
         "GET",
         "/users/{id}/profile",
-        path_params={"id": "123"},
+        path_params={"id": user_id},
     )
     get_resp = handler_mod.handler(get_event, None)
 
     assert get_resp["statusCode"] == 200
-    assert json.loads(get_resp["body"]) == profile_response("123", "alice")
+    assert json.loads(get_resp["body"]) == profile_response(user_id, "alice")
 
 
 def test_profile_flow_get_missing_returns_404(patch_handler_repo):

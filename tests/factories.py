@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Dict, Optional
 
 def pk_user(user_id: str) -> str:
@@ -31,3 +32,6 @@ def error_body(code: str, message: str) -> Dict[str, Any]:
 
 def ok_body() -> Dict[str, Any]:
     return {"ok": True}
+
+def unique_user_id() -> str:
+    return uuid.uuid4().hex

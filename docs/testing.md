@@ -160,3 +160,8 @@ python -m pytest -q -m integration tests/integration
 - E2E テストは通常の push / pull_request では実行しない
 - 必要なときに GitHub Actions の手動実行 (`workflow_dispatch`) で回す
 - 理由：E2E は本数を最小に保ち、通常CIの速度を落とさないため
+
+## E2E 安定化ルール
+
+- E2E では固定IDを避け、必要に応じてユニークなテストデータを使う
+- E2E は共有状態に依存させず、1回目と2回目で同じ結果になることを重視する
