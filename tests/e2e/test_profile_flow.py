@@ -4,7 +4,7 @@ import pytest
 from src import handler as handler_mod
 from tests.events import apigw_v1_event
 from src.repo_dynamo import DynamoRepo
-from tests.factories import profile_body, profile_response, ok_body
+from tests.factories import profile_body, profile_response, ok_body, error_body
 
 pytestmark = pytest.mark.e2e
 
@@ -41,3 +41,23 @@ def test_profile_flow_post_then_get(mocker, dynamodb_resource, items_table):
 
     assert get_resp["statusCode"] == 200
     assert json.loads(get_resp["body"]) == profile_response("123", "alice")
+
+
+def test_profile_flow_get_missing_returns_404(mocker, dynamodb_resource, items_table):
+    def repo_factory(table_name: str):
+        return DynamoRepo(table_name=table_name, dynamodb_resource=dynamodb_resource)
+
+    mocker.patch.object(handler_mod, "DynamoRepo", side_effect=repo_factory)
+
+    import os
+    mocker.patch.dict(os.environ, {"TABLE_NAME": items_table.name}, clear=False)
+
+    event = apigw_v1_event(
+        "GET",
+        "/users/{id}/profile",
+        path_params={"id": "999"},
+    )
+    resp = handler_mod.handler(event, None)
+
+    assert resp["statusCode"] == 404
+    assert json.loads(resp["body"]) == error_body("NOT_FOUND", "not found")
