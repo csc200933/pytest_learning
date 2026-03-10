@@ -149,3 +149,13 @@ python -m pytest -q -m integration tests/integration
 ## 日常実行コマンド
 - moto: `.\scripts\run_integration_moto.ps1`
 - local: `.\scripts\run_integration_local.ps1`
+
+## E2E の定義
+
+このリポジトリでは、E2E は「API Gateway に近いイベントを使って handler を呼び、
+永続化を伴う主要フローを確認するテスト」とする。
+
+最初の対象は次の1本：
+- POST /users/{id}/profile
+- GET /users/{id}/profile
+- 保存したデータを取得できること

@@ -24,6 +24,7 @@ testpaths = ["tests"]
 addopts = "-q --strict-markers"
 markers = [
   "integration: tests with dynamodb (moto/local)",
+  "e2e: end-to-end style tests through handler with persistence",
 ]
 filterwarnings = [
   "error::DeprecationWarning",
