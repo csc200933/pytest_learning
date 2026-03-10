@@ -70,3 +70,49 @@
 * パラメタライズが適切：似たテストは parametrize、ただし読みやすさ優先
 * 例外・エラーの形式が統一：APIのエラーレスポンス（code/message）を固定している
 * 実行時間意識：unitは速い、遅いものはintegrationに寄せ本数を制限
+
+## DynamoDB integration test の実行方法
+
+### 1. moto で実行する（デフォルト）
+
+通常は追加設定なしで moto を使う。
+
+```bash
+python -m pytest -q -m integration tests/integration
+```
+
+### 2. DynamoDB Local で実行する
+
+#### 2-1. Docker で起動
+
+```bash
+docker run --rm -p 8000:8000 amazon/dynamodb-local
+```
+
+別ターミナルで実行する。
+
+#### 2-2. 環境変数を設定して pytest 実行（PowerShell）
+
+```powershell
+$env:AWS_REGION="ap-northeast-1"
+$env:AWS_ACCESS_KEY_ID="dummy"
+$env:AWS_SECRET_ACCESS_KEY="dummy"
+$env:DYNAMODB_ENDPOINT_URL="http://localhost:8000"
+python -m pytest -q -m integration tests/integration
+```
+
+### 3. 使い分け
+
+* **moto**：普段の軽い確認用
+* **DynamoDB Local**：motoとの差分が気になる時、本番寄りに確認したい時
+
+### 4. よくあるエラー
+
+* `Connection refused`
+  → DynamoDB Local が起動していない、またはポート 8000 が使えない
+
+* `Unable to locate credentials`
+  → `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` にダミー値を入れる
+
+* `ResourceInUseException`
+  → テーブル名が重複している可能性がある。テストごとにランダム名を使う
