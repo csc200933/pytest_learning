@@ -155,7 +155,8 @@ python -m pytest -q -m integration tests/integration
 このリポジトリでは、E2E は「API Gateway に近いイベントを使って handler を呼び、
 永続化を伴う主要フローを確認するテスト」とする。
 
-最初の対象は次の1本：
-- POST /users/{id}/profile
-- GET /users/{id}/profile
-- 保存したデータを取得できること
+## E2E の運用
+
+- E2E テストは通常の push / pull_request では実行しない
+- 必要なときに GitHub Actions の手動実行 (`workflow_dispatch`) で回す
+- 理由：E2E は本数を最小に保ち、通常CIの速度を落とさないため
