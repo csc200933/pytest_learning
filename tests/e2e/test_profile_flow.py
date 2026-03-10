@@ -9,16 +9,7 @@ from tests.factories import profile_body, profile_response, ok_body, error_body
 pytestmark = pytest.mark.e2e
 
 
-def test_profile_flow_post_then_get(mocker, dynamodb_resource, items_table):
-    # handler が new する DynamoRepo を、同じ dynamodb_resource を使うものに差し替える
-    def repo_factory(table_name: str):
-        return DynamoRepo(table_name=table_name, dynamodb_resource=dynamodb_resource)
-
-    mocker.patch.object(handler_mod, "DynamoRepo", side_effect=repo_factory)
-
-    import os
-    mocker.patch.dict(os.environ, {"TABLE_NAME": items_table.name}, clear=False)
-
+def test_profile_flow_post_then_get(patch_handler_repo):
     # 1. POST
     post_event = apigw_v1_event(
         "POST",
@@ -43,15 +34,7 @@ def test_profile_flow_post_then_get(mocker, dynamodb_resource, items_table):
     assert json.loads(get_resp["body"]) == profile_response("123", "alice")
 
 
-def test_profile_flow_get_missing_returns_404(mocker, dynamodb_resource, items_table):
-    def repo_factory(table_name: str):
-        return DynamoRepo(table_name=table_name, dynamodb_resource=dynamodb_resource)
-
-    mocker.patch.object(handler_mod, "DynamoRepo", side_effect=repo_factory)
-
-    import os
-    mocker.patch.dict(os.environ, {"TABLE_NAME": items_table.name}, clear=False)
-
+def test_profile_flow_get_missing_returns_404(patch_handler_repo):
     event = apigw_v1_event(
         "GET",
         "/users/{id}/profile",
