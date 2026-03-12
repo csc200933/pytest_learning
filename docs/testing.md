@@ -176,3 +176,10 @@ python -m pytest -q -m integration tests/integration
 - unit は主にロジック検証で、並列実行を前提にする
 - integration は DynamoDB の setup コストが支配的になりやすい
 - e2e は本数を最小に保ち、手動実行を基本とする
+
+## Performance analysis notes
+
+- unit は 0.37s で十分速い
+- integration / e2e は 1s 前後で、主な遅さは test body ではなく setup にある
+- setup の主因候補は DynamoDB resource の初期化とテーブル作成/削除
+- 現時点では、速度よりもテスト隔離（function scope）を優先する
