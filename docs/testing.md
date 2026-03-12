@@ -165,3 +165,14 @@ python -m pytest -q -m integration tests/integration
 
 - E2E では固定IDを避け、必要に応じてユニークなテストデータを使う
 - E2E は共有状態に依存させず、1回目と2回目で同じ結果になることを重視する
+
+## Test performance baseline
+
+- unit: 0.37s
+- integration: 0.95s
+- e2e: 0.94s
+
+### Notes
+- unit は主にロジック検証で、並列実行を前提にする
+- integration は DynamoDB の setup コストが支配的になりやすい
+- e2e は本数を最小に保ち、手動実行を基本とする
