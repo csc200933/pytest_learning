@@ -1,3 +1,19 @@
+# Testing Guide
+
+## First steps
+- 普段の確認は `python -m pytest tests/unit`
+- 永続化の確認は `python -m pytest -m integration tests/integration`
+- 主要フローの確認は `python -m pytest -m e2e tests/e2e`
+- 収集対象の確認は `python -m pytest --collect-only`
+- 遅いテストは CI の `--durations=10` ログを見る
+
+## Reading order
+1. CI workflow overview
+2. Test pyramid policy
+3. E2E の定義
+4. DynamoDB integration test の実行方法
+5. Test performance baseline
+
 # pytest 調査コマンド集
 
 > 目的：テストが落ちた/遅い/原因不明のときに、最短で切り分ける
