@@ -292,3 +292,6 @@ unit / integration の分離を進める
 - DynamoDB 固有の挙動に依存するテストに `localcheck` を付ける
 - 例: `ConditionExpression`、条件付き更新、存在チェック付き `UpdateItem`
 - 単純な Put/Get の確認は、まず moto を優先し、必要性がある場合だけ `localcheck` を検討する
+
+
+- `localcheck` の導入後も、unit / integration / e2e の通常実行に影響しないことを確認済み
