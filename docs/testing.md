@@ -281,3 +281,8 @@ unit / integration の分離を進める
 - 通常の integration テストは moto を使って高速に確認する
 - DynamoDB 固有の挙動を強く意識したいテストは Local でも確認する
 - 現時点では、条件付き更新（ConditionExpression / UpdateItem）を Local 確認対象とする
+
+## DynamoDB Local の実行コマンド
+
+- integration 全体: `.\scripts\run_integration_local.ps1`
+- Local確認対象のみ: `.\scripts\run_localcheck.ps1`
