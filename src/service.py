@@ -4,10 +4,13 @@ from typing import Optional, Dict, Any
 from .repo_dynamo import DynamoRepo
 from botocore.exceptions import ClientError
 
+
 def pk_user(user_id: str) -> str:
     return f"USER#{user_id}"
 
+
 SK_PROFILE = "PROFILE"
+
 
 def upsert_profile(repo: DynamoRepo, user_id: str, name: str) -> None:
     if not user_id:
@@ -20,6 +23,7 @@ def upsert_profile(repo: DynamoRepo, user_id: str, name: str) -> None:
         sk=SK_PROFILE,
         attrs={"name": name},
     )
+
 
 def fetch_profile(repo: DynamoRepo, user_id: str) -> Optional[Dict[str, Any]]:
     if not user_id:

@@ -263,3 +263,14 @@ unit / integration の分離を進める
 - 触らないものは unit に寄せ、mock で差し替える
 - DBに触るものは integration に残す
 - まずは 1テストだけ移動・整理して、差分を小さくする
+
+## What I can do now
+
+- pytest で unit / integration / e2e を分けて設計・運用できる
+- mocker / caplog / capsys / tmp_path を用途別に使い分けられる
+- CI で unit / integration / e2e の実行条件を分け、coverage や durations を運用できる
+- DynamoDB (pk/sk) と API Gateway Proxy を前提に、handler/service/repo のテスト戦略を組める
+- docs と scripts を含めて、再実行しやすいテスト運用を整えられる
+
+## Local DynamoDB note
+- 条件付き更新（ConditionExpression）は Local でも通ることを確認した
