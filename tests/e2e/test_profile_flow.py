@@ -44,4 +44,5 @@ def test_profile_flow_get_missing_returns_404(patch_handler_repo):
     resp = handler_mod.handler(event, None)
 
     assert resp["statusCode"] == 404
+    assert resp["headers"]["Content-Type"] == "application/json"
     assert json.loads(resp["body"]) == error_body("NOT_FOUND", "not found")
