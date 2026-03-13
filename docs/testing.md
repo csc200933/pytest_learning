@@ -286,3 +286,9 @@ unit / integration の分離を進める
 
 - integration 全体: `.\scripts\run_integration_local.ps1`
 - Local確認対象のみ: `.\scripts\run_localcheck.ps1`
+
+## localcheck を付ける基準
+
+- DynamoDB 固有の挙動に依存するテストに `localcheck` を付ける
+- 例: `ConditionExpression`、条件付き更新、存在チェック付き `UpdateItem`
+- 単純な Put/Get の確認は、まず moto を優先し、必要性がある場合だけ `localcheck` を検討する
