@@ -274,3 +274,9 @@ unit / integration の分離を進める
 
 ## Local DynamoDB note
 - 条件付き更新（ConditionExpression）は Local でも通ることを確認した
+
+## moto / DynamoDB Local の使い分け
+
+- 通常の integration テストは moto を使って高速に確認する
+- DynamoDB 固有の挙動を強く意識したいテストは Local でも確認する
+- 現時点では、条件付き更新（ConditionExpression / UpdateItem）を Local 確認対象とする
