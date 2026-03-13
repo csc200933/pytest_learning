@@ -211,3 +211,8 @@ python -m pytest -q -m integration tests/integration
 - 現時点では、DynamoDB Local は CI に導入しない
 - 理由は、moto による integration が既にあり、Local はローカルで確認できるため
 - CI に Local を導入するのは、moto では再現できない差分が継続的に問題になった場合に検討する
+
+## E2E rerun check
+
+- E2E を追加・変更したら、連続で2回実行して再現性を確認する
+- ローカルで `DYNAMODB_ENDPOINT_URL` が残っていないか確認してから実行する
