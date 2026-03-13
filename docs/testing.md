@@ -252,3 +252,14 @@ python -m pytest -q -m integration tests/integration
 ### Notes
 - 通常の開発では unit を主なフィードバックとする
 - integration / e2e は本数を絞り、必要な時に実行する
+
+## What to bring back to work
+
+### Topic
+unit / integration の分離を進める
+
+### First small step
+- 既存のテストを1本選び、DBや外部I/Oに触るかを確認する
+- 触らないものは unit に寄せ、mock で差し替える
+- DBに触るものは integration に残す
+- まずは 1テストだけ移動・整理して、差分を小さくする
