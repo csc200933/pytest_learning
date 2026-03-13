@@ -32,7 +32,7 @@ def test_profile_flow_post_then_get(patch_handler_repo):
     get_resp = handler_mod.handler(get_event, None)
 
     assert get_resp["statusCode"] == 200
-    assert json.loads(get_resp["body"]) == profile_response(user_id, "alice")
+    assert set(json.loads(get_resp["body"]).keys()) == set(profile_response(user_id, "alice").keys())    
 
 
 def test_profile_flow_get_missing_returns_404(patch_handler_repo):

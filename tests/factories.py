@@ -21,17 +21,21 @@ def profile_body(name: Optional[str] = "alice") -> Dict[str, Any]:
         return {}
     return {"name": name}
 
+
 def profile_response(user_id: str, name: str) -> Dict[str, Any]:
     """
     GET /users/{id}/profile の 200 response body 用（handlerが返すdictに合わせる）
     """
     return user_profile_item(user_id, name)
 
+
 def error_body(code: str, message: str) -> Dict[str, Any]:
     return {"error": {"code": code, "message": message}}
 
+
 def ok_body() -> Dict[str, Any]:
     return {"ok": True}
+
 
 def unique_user_id() -> str:
     return uuid.uuid4().hex
