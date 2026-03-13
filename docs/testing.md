@@ -205,3 +205,9 @@ python -m pytest -q -m integration tests/integration
 - 収集対象の確認には `pytest --collect-only` を使う
 - 収集が遅いときは、`conftest.py` の配置と import の重さを疑う
 - unit では root の `tests/conftest.py` に重い依存を置かない
+
+## DynamoDB Local in CI
+
+- 現時点では、DynamoDB Local は CI に導入しない
+- 理由は、moto による integration が既にあり、Local はローカルで確認できるため
+- CI に Local を導入するのは、moto では再現できない差分が継続的に問題になった場合に検討する
