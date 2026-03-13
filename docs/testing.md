@@ -199,3 +199,9 @@ python -m pytest -q -m integration tests/integration
 - 現在のテスト数では serial が適している
 - 今後 unit テストが増えたら再評価する
 - 現在の規模では `-n 2` の効果は限定的だが、将来の unit テスト増加を見越して CI では維持する
+
+## Test collection notes
+
+- 収集対象の確認には `pytest --collect-only` を使う
+- 収集が遅いときは、`conftest.py` の配置と import の重さを疑う
+- unit では root の `tests/conftest.py` に重い依存を置かない
