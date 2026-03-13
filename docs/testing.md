@@ -188,3 +188,14 @@ python -m pytest -q -m integration tests/integration
 
 - integration / e2e の遅いテストは GitHub Actions のログで `--durations=10` を確認する
 - 遅さの主因が `setup` なら fixture / テーブル作成 / resource 初期化を疑う
+
+## xdist evaluation
+
+- unit (serial): 0.36
+- unit (-n 2): 1.42
+- unit (-n 2 --dist=loadscope): 1.62
+
+### Decision
+- 現在のテスト数では serial が適している
+- 今後 unit テストが増えたら再評価する
+- 現在の規模では `-n 2` の効果は限定的だが、将来の unit テスト増加を見越して CI では維持する
