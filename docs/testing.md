@@ -216,3 +216,11 @@ python -m pytest -q -m integration tests/integration
 
 - E2E を追加・変更したら、連続で2回実行して再現性を確認する
 - ローカルで `DYNAMODB_ENDPOINT_URL` が残っていないか確認してから実行する
+
+## Test pyramid policy
+
+- unit テストを中心にし、ロジック・バリデーション・エラーハンドリングを素早く確認する
+- integration テストは DynamoDB との永続化確認など、I/O 境界に限定する
+- e2e テストは主要フローのみを最小本数で持ち、通常CIではなく手動実行を基本とする
+- 新しいテストを追加する時は、まず unit で表現できないかを先に検討する
+- 現在の構成では、unit を厚くして integration / e2e を絞る方針が適している
