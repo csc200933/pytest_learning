@@ -3,8 +3,7 @@ import pytest
 
 from src import handler as handler_mod
 from tests.events import apigw_v1_event
-from src.repo_dynamo import DynamoRepo
-from tests.factories import profile_body, profile_response, ok_body, error_body, unique_user_id
+from tests.factories import profile_body, profile_response, error_body, ok_body, unique_user_id
 
 pytestmark = pytest.mark.e2e
 
@@ -21,6 +20,7 @@ def test_profile_flow_post_then_get(patch_handler_repo):
     post_resp = handler_mod.handler(post_event, None)
 
     assert post_resp["statusCode"] == 200
+    assert post_resp["headers"]["Content-Type"] == "application/json"
     assert json.loads(post_resp["body"]) == ok_body()
 
     # 2. GET

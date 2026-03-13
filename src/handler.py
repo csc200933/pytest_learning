@@ -7,12 +7,14 @@ from src import service
 import logging
 logger = logging.getLogger(__name__)
 
+
 def _json(status: int, body: dict):
     return {
         "statusCode": status,
         "headers": {"Content-Type": "application/json"},
         "body": json.dumps(body),
     }
+
 
 def _error(status: int, code: str, message: str):
     return _json(status, {"error": {"code": code, "message": message}})
