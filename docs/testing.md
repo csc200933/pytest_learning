@@ -224,3 +224,15 @@ python -m pytest -q -m integration tests/integration
 - e2e テストは主要フローのみを最小本数で持ち、通常CIではなく手動実行を基本とする
 - 新しいテストを追加する時は、まず unit で表現できないかを先に検討する
 - 現在の構成では、unit を厚くして integration / e2e を絞る方針が適している
+
+## CI workflow overview
+
+| test type | trigger | purpose |
+|---|---|---|
+| unit | push / pull_request | ロジックとバリデーションを高速に確認する |
+| integration | main push / manual | DynamoDB との永続化や I/O 境界を確認する |
+| e2e | manual | 主要フローを end-to-end で確認する |
+
+### Notes
+- 通常の開発では unit を主なフィードバックとする
+- integration / e2e は本数を絞り、必要な時に実行する
