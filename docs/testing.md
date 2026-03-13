@@ -274,6 +274,7 @@ unit / integration の分離を進める
 
 ## Local DynamoDB note
 - 条件付き更新（ConditionExpression）は Local でも通ることを確認した
+- `localcheck` マーカーは、DynamoDB Local でも確認したい integration テストに付ける
 
 ## moto / DynamoDB Local の使い分け
 

@@ -5,7 +5,6 @@ from src import service
 pytestmark = pytest.mark.integration
 
 
-# This test is also a good candidate for DynamoDB Local verification.
 def test_upsert_and_fetch_profile_integration(dynamodb_resource, items_table):
     repo = DynamoRepo(items_table.name, dynamodb_resource=dynamodb_resource)
 
@@ -18,6 +17,8 @@ def test_upsert_and_fetch_profile_integration(dynamodb_resource, items_table):
     assert item["name"] == "alice"
 
 
+# This test is also a good candidate for DynamoDB Local verification.
+@pytest.mark.localcheck
 def test_update_item_conditionally(dynamodb_resource, items_table):
     repo = DynamoRepo(items_table.name, dynamodb_resource=dynamodb_resource)
 

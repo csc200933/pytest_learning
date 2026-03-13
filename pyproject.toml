@@ -25,6 +25,7 @@ addopts = "-q --strict-markers"
 markers = [
   "integration: tests with dynamodb (moto/local)",
   "e2e: end-to-end style tests through handler with persistence",
+  "localcheck: tests worth verifying against DynamoDB Local",
 ]
 filterwarnings = [
   "error::DeprecationWarning",
