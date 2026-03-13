@@ -82,4 +82,4 @@ jobs:
         env:
           AWS_REGION: ap-northeast-1
         run: |
-          python -m pytest -q -m e2e tests/e2e
+          python -m pytest -q -m e2e tests/e2e --durations=10

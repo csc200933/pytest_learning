@@ -183,3 +183,8 @@ python -m pytest -q -m integration tests/integration
 - integration / e2e は 1s 前後で、主な遅さは test body ではなく setup にある
 - setup の主因候補は DynamoDB resource の初期化とテーブル作成/削除
 - 現時点では、速度よりもテスト隔離（function scope）を優先する
+
+## Slow test の確認
+
+- integration / e2e の遅いテストは GitHub Actions のログで `--durations=10` を確認する
+- 遅さの主因が `setup` なら fixture / テーブル作成 / resource 初期化を疑う
