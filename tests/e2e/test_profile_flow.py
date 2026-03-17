@@ -46,3 +46,18 @@ def test_profile_flow_get_missing_returns_404(patch_handler_repo):
     assert resp["statusCode"] == 404
     assert resp["headers"]["Content-Type"] == "application/json"
     assert json.loads(resp["body"]) == error_body("NOT_FOUND", "not found")
+
+
+def test_profile_flow_post_invalid_name_returns_400(patch_handler_repo):
+    event = apigw_v1_event(
+        "POST",
+        "/users/{id}/profile",
+        path_params={"id": "123"},
+        body_obj=profile_body(name=""),
+    )
+
+    resp = handler_mod.handler(event, None)
+
+    assert resp["statusCode"] == 400
+    assert resp["headers"]["Content-Type"] == "application/json"
+    assert json.loads(resp["body"]) == error_body("BAD_REQUEST", "bad request")
