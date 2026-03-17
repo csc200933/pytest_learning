@@ -295,3 +295,8 @@ unit / integration の分離を進める
 
 
 - `localcheck` の導入後も、unit / integration / e2e の通常実行に影響しないことを確認済み
+
+## E2E performance note
+
+- 現時点の e2e の主な遅さは test body ではなく setup にある
+- 改善候補は、e2e の共通セットアップ（DynamoDB準備・patch）の重複をさらに減らすこと
