@@ -8,6 +8,15 @@ from tests.factories import profile_body, profile_response, error_body, ok_body,
 pytestmark = pytest.mark.e2e
 
 
+def make_profile_event(method: str, user_id: str, body_obj=None):
+    return apigw_v1_event(
+        method,
+        "/users/{id}/profile",
+        path_params={"id": user_id},
+        body_obj=body_obj,
+    )
+
+
 def assert_json_response(resp, status_code: int, expected_body: dict):
     assert resp["statusCode"] == status_code
     assert resp["headers"]["Content-Type"] == "application/json"
@@ -17,20 +26,11 @@ def assert_json_response(resp, status_code: int, expected_body: dict):
 def test_profile_flow_post_then_get(patch_handler_repo):
     user_id = unique_user_id()
     # 1. POST
-    post_event = apigw_v1_event(
-        "POST",
-        "/users/{id}/profile",
-        path_params={"id": user_id},
-        body_obj=profile_body(name="alice"),
-    )
+    post_event = make_profile_event("POST", user_id, profile_body(name="alice"))
     assert_json_response(handler_mod.handler(post_event, None), 200, ok_body())
 
     # 2. GET
-    get_event = apigw_v1_event(
-        "GET",
-        "/users/{id}/profile",
-        path_params={"id": user_id},
-    )
+    get_event = make_profile_event("GET", user_id)
     assert_json_response(handler_mod.handler(get_event, None), 200, profile_response(user_id, "alice"))
 
 
