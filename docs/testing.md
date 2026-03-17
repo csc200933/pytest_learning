@@ -38,7 +38,7 @@
 * 失敗したものを先に：`python -m pytest -q --ff`
 * 失敗の詳細表示：`python -m pytest -vv`
 
-## 収集（discover）の確認
+## Test collection notes
 
 * 何が拾われているか：`python -m pytest --collect-only -q`
 * マーカー適用後の収集確認：`python -m pytest --collect-only -q -m "not integration"`
