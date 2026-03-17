@@ -184,9 +184,9 @@ python -m pytest -q -m integration tests/integration
 
 ## Test performance baseline
 
-- unit: 0.37s
-- integration: 0.95s
-- e2e: 0.94s
+- unit: 0.45s
+- integration: 1.08s
+- e2e: 1.41s
 
 ### Notes
 - unit は主にロジック検証で、並列実行を前提にする
