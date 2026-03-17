@@ -311,3 +311,13 @@ unit / integration の分離を進める
 - integration が遅い: `python -m pytest -m integration tests/integration --durations=10`
 - e2e が遅い: `.\scripts\run_e2e_durations.ps1`
 - setup が遅いか call が遅いかを先に確認してから改善する
+
+## How to investigate slow tests
+
+1. まず `--durations=10` で、遅いのが `setup` か `call` かを確認する
+2. `setup` が遅い場合は、fixture の重複、DynamoDB 準備、patch のやりすぎを疑う
+3. `call` が遅い場合は、テスト対象の処理そのもの、不要なI/O、ループ処理を疑う
+4. scope を広げる改善は最後に検討し、まずは重複削減と共通化を優先する
+5. unit は速度優先、integration / e2e は本数を絞って保守コストを抑える
+
+- 現在のこのプロジェクトでは、e2e の主な遅さは setup にある
