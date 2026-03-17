@@ -304,3 +304,10 @@ unit / integration の分離を進める
 - 現時点の e2e の主な遅さは test body ではなく setup にある
 - 遅い箇所を見たい時は `pytest -m e2e tests/e2e --durations=10` を使う
 - 改善は scope を広げるより、共通セットアップの重複削減を優先する
+
+## When tests feel slow
+
+- unit が遅い: `python -m pytest tests/unit --durations=10`
+- integration が遅い: `python -m pytest -m integration tests/integration --durations=10`
+- e2e が遅い: `.\scripts\run_e2e_durations.ps1`
+- setup が遅いか call が遅いかを先に確認してから改善する

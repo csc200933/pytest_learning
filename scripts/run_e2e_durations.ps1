@@ -1,0 +1,1 @@
+python -m pytest -m e2e tests/e2e --durations=10
