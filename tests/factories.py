@@ -1,16 +1,20 @@
 import uuid
 from typing import Any, Dict, Optional
 
+
 def pk_user(user_id: str) -> str:
     if not user_id:
         raise ValueError("user_id is required.")
     return f"USER#{user_id}"
 
+
 def sk_profile() -> str:
     return "PROFILE"
 
+
 def user_profile_item(user_id: str, name: str) -> Dict[str, Any]:
     return {"pk": pk_user(user_id), "sk": sk_profile(), "name": name}
+
 
 def profile_body(name: Optional[str] = "alice") -> Dict[str, Any]:
     """
