@@ -162,9 +162,12 @@ python -m pytest -q -m integration tests/integration
 - 原因：`AWS_REGION` や `DYNAMODB_ENDPOINT_URL` の設定が期待と違う
 - 対処：PowerShell の環境変数一覧を確認してから pytest を実行する
 
-## 日常実行コマンド
-- moto: `.\scripts\run_integration_moto.ps1`
-- local: `.\scripts\run_integration_local.ps1`
+## Daily test commands
+- unit: `python -m pytest tests/unit`
+- integration (moto): `.\scripts\run_integration_moto.ps1`
+- integration (local): `.\scripts\run_integration_local.ps1`
+- localcheck only: `.\scripts\run_localcheck.ps1`
+- e2e: `python -m pytest -m e2e tests/e2e`
 
 ## E2E の定義
 
@@ -299,4 +302,5 @@ unit / integration の分離を進める
 ## E2E performance note
 
 - 現時点の e2e の主な遅さは test body ではなく setup にある
-- 改善候補は、e2e の共通セットアップ（DynamoDB準備・patch）の重複をさらに減らすこと
+- 遅い箇所を見たい時は `pytest -m e2e tests/e2e --durations=10` を使う
+- 改善は scope を広げるより、共通セットアップの重複削減を優先する
