@@ -23,6 +23,7 @@ def assert_json_response(resp, status_code: int, expected_body: dict):
     assert json.loads(resp["body"]) == expected_body
 
 
+@pytest.mark.usefixtures("clean_items_table")
 def test_profile_flow_post_then_get(patch_handler_repo):
     user_id = unique_user_id()
     # 1. POST
@@ -33,7 +34,7 @@ def test_profile_flow_post_then_get(patch_handler_repo):
     get_event = make_profile_event("GET", user_id)
     assert_json_response(handler_mod.handler(get_event, None), 200, profile_response(user_id, "alice"))
 
-
+@pytest.mark.usefixtures("clean_items_table")
 def test_profile_flow_get_missing_returns_404(patch_handler_repo):
     event = apigw_v1_event(
         "GET",
@@ -43,6 +44,7 @@ def test_profile_flow_get_missing_returns_404(patch_handler_repo):
     assert_json_response(handler_mod.handler(event, None), 404, error_body("NOT_FOUND", "not found"))
 
 
+@pytest.mark.usefixtures("clean_items_table")
 def test_profile_flow_post_invalid_name_returns_400(patch_handler_repo):
     event = apigw_v1_event(
         "POST",

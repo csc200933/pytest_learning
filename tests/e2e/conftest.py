@@ -18,12 +18,12 @@ def dynamodb_endpoint_url() -> str | None:
     return os.getenv("DYNAMODB_ENDPOINT_URL")
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def table_name() -> str:
     return f"test_items_{uuid.uuid4().hex}"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def dynamodb_resource(aws_region: str, dynamodb_endpoint_url: str | None):
     if dynamodb_endpoint_url:
         yield boto3.resource(
@@ -38,7 +38,7 @@ def dynamodb_resource(aws_region: str, dynamodb_endpoint_url: str | None):
             yield boto3.resource("dynamodb", region_name=aws_region)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def items_table(dynamodb_resource, table_name: str):
     table = dynamodb_resource.create_table(
         TableName=table_name,
@@ -68,3 +68,27 @@ def patch_handler_repo(mocker, dynamodb_resource, items_table):
         "table_name": items_table.name,
         "dynamodb_resource": dynamodb_resource,
     }
+
+
+@pytest.fixture
+def clean_items_table(items_table):
+    delete_all_items(items_table)
+    yield
+    delete_all_items(items_table)
+
+
+def delete_all_items(table):
+    # 1. scanで全アイテムのキーを取得
+    response = table.scan(ProjectionExpression='pk, sk') # キーのみ取得
+    items = response.get('Items', [])
+
+    # 2. batch_writerで一括削除
+    with table.batch_writer() as batch:
+        for item in items:
+            batch.delete_item(
+                Key={
+                    'pk': item['pk'],
+                    'sk': item['sk']
+                }
+            )
+    print(f"{len(items)} 件のアイテムを削除しました。")
