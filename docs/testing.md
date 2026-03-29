@@ -59,6 +59,14 @@
 * テストデータは テストごとに固有（idやテーブル名はuuid等で衝突回避）
 * 外部I/Oを含むものは integrationに寄せて本数を絞る（並列対象は基本unit）
 
+## 補足メモ（integration / e2e）
+
+* integration / e2e は基本直列実行
+* 共有外部資源は、実体の管理とデータ cleanup の責務を分ける
+* module scope 化は高速化に有効なことがあるが、残骸対策が前提
+* scope 変更後は setup コストが先頭テストに集約して見えることがある
+* 将来並列化する場合は、worker ごとの資源分離を検討する
+
 ## プラグイン
 ### pytest-mock
 * 何を解決：unittest.mock を pytest の fixture として扱いやすくする（mocker）
