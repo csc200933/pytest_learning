@@ -1,3 +1,5 @@
+## This code base is assisted by ChatGPT
+
 ## Unit / Integration の境界（判断基準）
 
 * **Unit**：DynamoDBや外部I/Oを呼ばず、`service` の分岐・バリデーション・レスポンス整形を検証する（repoはmockerで差し替える）。

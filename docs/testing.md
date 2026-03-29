@@ -211,6 +211,29 @@ python -m pytest -q -m integration tests/integration
 - setup の主因候補は DynamoDB resource の初期化とテーブル作成/削除
 - 現時点では、速度よりもテスト隔離（function scope）を優先する
 
+## e2e tuning
+### 改善前
+- setup が複数テストに分散
+- 0.61s / 0.36s / 0.30s
+
+### 改善後
+- 3 passed in 0.70s
+- 0.65s setup が先頭に集約して見える
+
+### 改善したこと
+- 3テスト通過
+- module化 + cleanup 分離が成立
+- setup 分散が減った可能性が高い
+
+### まだ未確認
+- e2e 全体で改善したか
+- 他テストへの副作用
+- baseline 1.41s との比較
+- module scope 化により、setup コストが各テストに分散する形から、先頭テストに集約して観測される形へ変わった可能性がある
+
+### 次にやること
+- tests/e2e 全体を再計測する
+
 ## Slow test の確認
 
 - integration / e2e の遅いテストは GitHub Actions のログで `--durations=10` を確認する
@@ -329,3 +352,96 @@ unit / integration の分離を進める
 5. unit は速度優先、integration / e2e は本数を絞って保守コストを抑える
 
 - 現在のこのプロジェクトでは、e2e の主な遅さは setup にある
+
+# pytest 第2周目 Day22〜Day30 引き継ぎ用
+
+## この区間のテーマ
+e2e テストの slow setup を観測し、fixture 設計を見直して改善した。
+
+## 出発点
+slowest durations では call は軽く、setup が支配的だった。
+
+- 0.61s setup    test_profile_flow_post_then_get
+- 0.36s setup    test_profile_flow_post_invalid_name_returns_400
+- 0.30s setup    test_profile_flow_get_missing_returns_404
+
+## 主因候補の整理
+`patch_handler_repo` は依存差し替え用fixtureで、重さの主因ではなかった。  
+主因候補は以下。
+
+- `items_table` の function scope + 毎回 create / cleanup
+- `dynamodb_resource` の初期化
+
+## 採用した改善方針
+案Bを採用。
+
+- `dynamodb_resource`: module
+- `items_table`: module
+- `clean_items_table`: function
+- `patch_handler_repo`: function のまま
+
+責務はこう分けた。
+
+- `items_table`: テーブル実体の作成 / 削除
+- `clean_items_table`: テーブル内データ状態の cleanup
+- `patch_handler_repo`: 依存差し替え
+
+## 実装内容
+1. `dynamodb_resource` を module 化
+2. `items_table` を module 化
+3. `clean_items_table` を追加
+4. 3テストへ適用
+5. 局所確認 → 全体再計測
+
+`clean_items_table` は前後で全件削除、削除キーは `pk`, `sk`。
+
+## 実装途中の環境トラブル
+e2e 実行時に `boto3 / botocore` の import error が発生。  
+原因は Python 本体ではなく、venv 内依存の欠損 / 不整合と判断。  
+`boto3` と `botocore` を入れ直して復旧した。
+
+## 結果
+局所確認:
+- 3 passed in 0.70s
+- 0.65s setup が先頭テストに集約して見えた
+
+e2e 全体再計測:
+- baseline: 1.41s
+- after: 0.72s
+- 約 0.69s 短縮
+
+結論:
+- 局所だけでなく全体でも改善
+- module scope 化により setup コストが先頭テストに集約して観測される形へ変化
+
+## 改善後に残ったボトルネック
+主因候補:
+- `items_table` の `create_table`
+- `dynamodb_resource` の初期化
+
+見立て:
+- 最有力は `items_table` の `create_table`
+- `dynamodb_resource` は session 化余地はあるが、改善幅は限定的かもしれない
+- 現在の 0.67s は、ある程度妥当な初期固定費の可能性あり
+
+## 用語整理
+- 「接着用fixture」は説明用表現。今後は「依存差し替え用fixture」を使う
+- `seed data / seedデータ` は一般的な用語。今回の3テストには明示的な seed data は無かった
+- teardown はフェーズ、cleanup は具体的処理
+
+## 並列実行について
+このコードベースでは並列対象は unit のみ推奨。  
+e2e / integration は基本直列のままでよい。  
+ただし知識として以下を整理した。
+
+- xdist では worker は独立プロセス
+- module scope fixture は worker ごとに動きうる
+- 並列時に壊れやすいのは共有外部資源
+- UUID 付きテーブル名は衝突回避に有効
+
+## この区間でできるようになったこと
+- slowest durations を phase 単位で読める
+- setup 重さの主因候補を fixture 構成から考えられる
+- fixture を責務で分解できる
+- scope 変更の効果と副作用を考えられる
+- 小さく実装して局所確認し、全体再計測で評価できる
